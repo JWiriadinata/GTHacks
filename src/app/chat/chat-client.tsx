@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { AlertTriangle, Languages, Loader2, LogOut, Send, Video, VideoOff } from 'lucide-react';
+import { AlertTriangle, Languages, Loader2, LogOut, Send, VideoOff } from 'lucide-react';
 import { format } from 'date-fns';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { languages } from '@/lib/languages';
@@ -67,6 +67,16 @@ export default function ChatClient() {
 
   useEffect(() => {
     const getCameraPermission = async () => {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        console.error('Camera API not supported in this browser.');
+        setHasCameraPermission(false);
+        toast({
+          variant: 'destructive',
+          title: 'Camera Not Supported',
+          description: 'Your browser does not support camera access.',
+        });
+        return;
+      }
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         setHasCameraPermission(true);
@@ -198,8 +208,8 @@ export default function ChatClient() {
       <main className="flex-1 overflow-hidden">
         <ResizablePanelGroup direction="horizontal" className="h-full w-full">
           <ResizablePanel defaultSize={30} minSize={20}>
-            <div className="flex h-full flex-col items-center justify-center space-y-4 p-4">
-              <Card className="relative flex aspect-video w-full flex-col items-center justify-center overflow-hidden border-dashed bg-card/50 text-center">
+            <div className="flex h-full flex-col space-y-4 p-4">
+              <Card className="relative flex w-full flex-col items-center justify-center overflow-hidden border-dashed bg-card/50 text-center aspect-video">
                 <CardHeader>
                   <CardTitle>Partner's Video</CardTitle>
                 </CardHeader>
@@ -208,8 +218,8 @@ export default function ChatClient() {
                   <p>Your partner's video is off</p>
                 </CardContent>
               </Card>
-              <div className="relative aspect-video w-full">
-                <video ref={videoRef} className="aspect-video w-full rounded-md bg-muted" autoPlay muted />
+              <div className="relative w-full aspect-video">
+                <video ref={videoRef} className="h-full w-full object-cover rounded-md bg-muted" autoPlay muted />
                 {hasCameraPermission === false && (
                   <div className="absolute inset-0 flex flex-col items-center justify-center rounded-md bg-black/50 p-4 text-white">
                     <VideoOff className="mb-2 h-10 w-10" />
