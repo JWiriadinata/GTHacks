@@ -1,0 +1,41 @@
+html{
+    background-color: #EEE5E5;
+}
+h1 {
+
+}
+p{
+    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
+    /*font-size: 150%*/
+
+}
+.horizontal-list li {
+        display: inline-block;
+        margin-right: 10px; /* Adjust spacing as needed */
+        list-style-type: none; /* Removes bullet points */
+        color: #19647E;
+}
+
+.horizontal-list {
+        padding-left: 20; /* Removes default padding from the ul */
+}
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 20;
+  overflow: hidden;
+  background-color: #37392E;
+}
+li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 16px;
+  text-decoration: none;
+}
+li a:hover {
+  background-color: #484a3e;
+}
+img{
+    float: left;
+}
