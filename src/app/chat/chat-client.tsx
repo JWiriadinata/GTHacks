@@ -209,7 +209,7 @@ export default function ChatClient() {
         <ResizablePanelGroup direction="horizontal" className="h-full w-full">
           <ResizablePanel defaultSize={30} minSize={20}>
             <div className="flex h-full flex-col space-y-4 p-4">
-              <Card className="relative flex w-full flex-col items-center justify-center overflow-hidden border-dashed bg-card/50 text-center aspect-video">
+              <Card className="relative flex-1 flex w-full flex-col items-center justify-center overflow-hidden border-dashed bg-card/50 text-center">
                 <CardHeader>
                   <CardTitle>Partner's Video</CardTitle>
                 </CardHeader>
@@ -218,7 +218,7 @@ export default function ChatClient() {
                   <p>Your partner's video is off</p>
                 </CardContent>
               </Card>
-              <div className="relative w-full aspect-video">
+              <div className="relative flex-1 w-full">
                 <video ref={videoRef} className="h-full w-full object-cover rounded-md bg-muted" autoPlay muted />
                 {hasCameraPermission === false && (
                   <div className="absolute inset-0 flex flex-col items-center justify-center rounded-md bg-black/50 p-4 text-white">
