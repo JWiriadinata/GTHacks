@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { AlertTriangle, Languages, Loader2, LogOut, Send, VideoOff } from 'lucide-react';
+import { AlertTriangle, Languages, Loader2, LogOut, Send, Video, VideoOff } from 'lucide-react';
 import { format } from 'date-fns';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { languages } from '@/lib/languages';
@@ -53,6 +53,8 @@ export default function ChatClient() {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean>();
+  const [isCameraOn, setIsCameraOn] = useState(true);
+  const streamRef = useRef<MediaStream | null>(null);
 
   useEffect(() => {
     // Scroll to bottom when new messages arrive
@@ -79,24 +81,59 @@ export default function ChatClient() {
       }
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        streamRef.current = stream;
         setHasCameraPermission(true);
-
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
         }
       } catch (error) {
         console.error('Error accessing camera:', error);
         setHasCameraPermission(false);
-        toast({
-          variant: 'destructive',
-          title: 'Camera Access Denied',
-          description: 'Please enable camera permissions in your browser settings to use this feature.',
-        });
       }
     };
 
     getCameraPermission();
+
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+    };
   }, [toast]);
+
+  const handleToggleCamera = () => {
+    if (isCameraOn) {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+      if(videoRef.current) {
+        videoRef.current.srcObject = null;
+      }
+      setIsCameraOn(false);
+    } else {
+      const getCamera = async () => {
+         try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            streamRef.current = stream;
+            setHasCameraPermission(true);
+            if (videoRef.current) {
+              videoRef.current.srcObject = stream;
+            }
+            setIsCameraOn(true);
+          } catch (error) {
+            console.error('Error accessing camera:', error);
+            setHasCameraPermission(false);
+            toast({
+              variant: 'destructive',
+              title: 'Camera Access Denied',
+              description: 'Please enable camera permissions in your browser settings to use this feature.',
+            });
+          }
+      };
+      getCamera();
+    }
+  };
+
 
   const getPartnerResponse = async (currentMessages: Message[]) => {
     setIsPartnerTyping(true);
@@ -220,14 +257,25 @@ export default function ChatClient() {
               </Card>
               <div className="relative flex-1 w-full overflow-hidden rounded-md bg-muted">
                 <video ref={videoRef} className="h-full w-full object-cover" autoPlay muted playsInline />
-                {hasCameraPermission === false && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center rounded-md bg-black/50 p-4 text-white">
+                <div className="absolute bottom-2 left-2 right-2 flex justify-center">
+                  <Button onClick={handleToggleCamera} variant="outline" size="icon">
+                    {isCameraOn ? <Video className="h-5 w-5" /> : <VideoOff className="h-5 w-5" />}
+                  </Button>
+                </div>
+                {!isCameraOn && (
+                   <div className="absolute inset-0 flex flex-col items-center justify-center rounded-md bg-black/80 p-4 text-white">
+                    <VideoOff className="mb-2 h-10 w-10" />
+                    <p className="text-center font-semibold">Your camera is off</p>
+                  </div>
+                )}
+                 {hasCameraPermission === false && isCameraOn && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center rounded-md bg-black/80 p-4 text-white">
                     <VideoOff className="mb-2 h-10 w-10" />
                     <p className="text-center font-semibold">Camera Access Required</p>
                     <p className="text-center text-sm">Please allow camera access to use video chat.</p>
                   </div>
                 )}
-                {hasCameraPermission === undefined && (
+                {hasCameraPermission === undefined && isCameraOn &&(
                   <div className="absolute inset-0 flex flex-col items-center justify-center rounded-md bg-black/50 p-4 text-white">
                     <Loader2 className="h-10 w-10 animate-spin" />
                   </div>
