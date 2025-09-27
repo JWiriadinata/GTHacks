@@ -12,7 +12,7 @@ export default function Home() {
           Speak with confidence. Connect with the world.
         </h2>
         <p className="text-lg text-muted-foreground">
-          LinguaLeap instantly connects you with native speakers for real-time language practice. No accounts, no waiting. Just leap into conversation.
+          ConnexUs instantly connects you with native speakers for real-time language practice. No accounts, no waiting. Just leap into conversation.
         </p>
         <Button asChild size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 focus-visible:ring-accent">
           <Link href="/match">

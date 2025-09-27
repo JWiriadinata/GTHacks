@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'LinguaLeap',
+  title: 'ConnexUs',
   description: 'Instantly connect with native speakers for real-time language practice.',
 };
 
