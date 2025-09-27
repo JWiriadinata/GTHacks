@@ -92,48 +92,30 @@ export default function ChatClient() {
       }
     };
 
-    getCameraPermission();
+    if (isCameraOn) {
+      getCameraPermission();
+    }
 
     return () => {
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
       }
     };
-  }, [toast]);
+  }, [toast, isCameraOn]);
 
   const handleToggleCamera = () => {
-    if (isCameraOn) {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
+    setIsCameraOn(prevIsCameraOn => {
+      if (prevIsCameraOn) {
+        if (streamRef.current) {
+          streamRef.current.getTracks().forEach(track => track.stop());
+        }
+        if (videoRef.current) {
+          videoRef.current.srcObject = null;
+        }
       }
-      if(videoRef.current) {
-        videoRef.current.srcObject = null;
-      }
-      setIsCameraOn(false);
-    } else {
-      const getCamera = async () => {
-         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            streamRef.current = stream;
-            setHasCameraPermission(true);
-            if (videoRef.current) {
-              videoRef.current.srcObject = stream;
-            }
-            setIsCameraOn(true);
-          } catch (error) {
-            console.error('Error accessing camera:', error);
-            setHasCameraPermission(false);
-            toast({
-              variant: 'destructive',
-              title: 'Camera Access Denied',
-              description: 'Please enable camera permissions in your browser settings to use this feature.',
-            });
-          }
-      };
-      getCamera();
-    }
+      return !prevIsCameraOn;
+    });
   };
-
 
   const getPartnerResponse = async (currentMessages: Message[]) => {
     setIsPartnerTyping(true);
@@ -245,17 +227,19 @@ export default function ChatClient() {
       <main className="flex-1 overflow-hidden">
         <ResizablePanelGroup direction="horizontal" className="h-full w-full">
           <ResizablePanel defaultSize={30} minSize={20}>
-            <div className="flex h-full flex-col space-y-4 p-4">
-              <Card className="relative flex-1 flex w-full flex-col items-center justify-center overflow-hidden border-dashed bg-card/50 text-center">
-                <CardHeader>
-                  <CardTitle>Partner's Video</CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-col items-center justify-center gap-4 text-muted-foreground">
-                  <VideoOff className="h-16 w-16" />
-                  <p>Your partner's video is off</p>
-                </CardContent>
-              </Card>
-              <div className="relative flex-1 w-full overflow-hidden rounded-md bg-muted">
+            <div className="flex h-full flex-col">
+              <div className="relative flex-1 w-full overflow-hidden bg-card/50">
+                 <Card className="flex h-full w-full flex-col items-center justify-center overflow-hidden border-dashed bg-card/50 text-center">
+                  <CardHeader>
+                    <CardTitle>Partner's Video</CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex flex-col items-center justify-center gap-4 text-muted-foreground">
+                    <VideoOff className="h-16 w-16" />
+                    <p>Your partner's video is off</p>
+                  </CardContent>
+                </Card>
+              </div>
+              <div className="relative flex-1 w-full overflow-hidden bg-muted">
                 <video ref={videoRef} className="h-full w-full object-cover" autoPlay muted playsInline />
                 <div className="absolute bottom-2 left-2 right-2 flex justify-center">
                   <Button onClick={handleToggleCamera} variant="outline" size="icon">
