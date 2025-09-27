@@ -5,11 +5,12 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { AlertTriangle, Languages, Loader2, LogOut, Send, VideoOff } from 'lucide-react';
+import { AlertTriangle, Languages, Loader2, LogOut, Send, Video, VideoOff } from 'lucide-react';
 import { format } from 'date-fns';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { languages } from '@/lib/languages';
 import { translateMessage } from '@/ai/flows/real-time-translation';
+import { partnerChat } from '@/ai/flows/partner-chat';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,6 +18,7 @@ import { Logo } from '@/components/logo';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import Link from 'next/link';
+import Image from 'next/image';
 
 type Message = {
   id: number;
@@ -29,14 +31,6 @@ type Translation = {
   text: string;
   loading: boolean;
 };
-
-const partnerMessages = [
-  { text: 'Hola, ¿cómo estás?', delay: 2000 },
-  { text: 'Estoy bien, gracias. ¿Y tú? ¿Qué te trae por aquí?', delay: 5000 },
-  { text: '¡Genial! Me encanta hablar sobre películas. ¿Has visto alguna buena últimamente?', delay: 6000 },
-  { text: 'Oh, no la he visto. "La Casa de Papel" es una serie, ¿verdad? Es muy popular.', delay: 8000 },
-  { text: 'Entiendo. Mi película favorita es "El Laberinto del Fauno". Es una fantasía oscura muy hermosa.', delay: 7000 },
-];
 
 export default function ChatClient() {
   const router = useRouter();
@@ -57,50 +51,99 @@ export default function ChatClient() {
   const userAvatar = PlaceHolderImages.find(p => p.id === 'user-avatar');
   const partnerAvatar = PlaceHolderImages.find(p => p.id === 'partner-avatar');
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [hasCameraPermission, setHasCameraPermission] = useState<boolean>();
 
   useEffect(() => {
     // Scroll to bottom when new messages arrive
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTo({ top: scrollAreaRef.current.scrollHeight, behavior: 'smooth' });
+    const scrollArea = scrollAreaRef.current;
+    if (scrollArea) {
+      // Using `setTimeout` to allow the DOM to update before scrolling
+      setTimeout(() => {
+        scrollArea.scrollTo({ top: scrollArea.scrollHeight, behavior: 'smooth' });
+      }, 100);
     }
   }, [messages, isPartnerTyping]);
 
   useEffect(() => {
-    // Simulate partner messages
-    let messageIndex = 0;
-    const timeouts: NodeJS.Timeout[] = [];
+    const getCameraPermission = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        setHasCameraPermission(true);
 
-    const scheduleNextMessage = () => {
-      if (messageIndex < partnerMessages.length) {
-        const { text, delay } = partnerMessages[messageIndex];
-        const t1 = setTimeout(() => {
-          setIsPartnerTyping(true);
-          const t2 = setTimeout(() => {
-            setMessages(prev => [...prev, { id: Date.now(), text, sender: 'partner', timestamp: new Date() }]);
-            setIsPartnerTyping(false);
-            messageIndex++;
-            scheduleNextMessage();
-          }, 1500); // typing duration
-          timeouts.push(t2);
-        }, delay);
-        timeouts.push(t1);
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+        setHasCameraPermission(false);
+        toast({
+          variant: 'destructive',
+          title: 'Camera Access Denied',
+          description: 'Please enable camera permissions in your browser settings to use this feature.',
+        });
       }
     };
-    scheduleNextMessage();
+
+    getCameraPermission();
+  }, [toast]);
+
+  const getPartnerResponse = async (currentMessages: Message[]) => {
+    setIsPartnerTyping(true);
+    const messageHistory = currentMessages
+      .map(m => `${m.sender === 'user' ? 'User' : 'Partner'}: ${m.text}`)
+      .join('\n');
+
+    try {
+      const result = await partnerChat({
+        nativeLanguage: nativeLang,
+        learningLanguage: learningLang,
+        messageHistory,
+      });
+
+      const newPartnerMessage: Message = {
+        id: Date.now(),
+        text: result.response,
+        sender: 'partner',
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, newPartnerMessage]);
+    } catch (e) {
+      console.error(e);
+      toast({
+        variant: 'destructive',
+        title: 'AI Partner Error',
+        description: 'Could not get a response from the partner at this time.',
+      });
+    } finally {
+      setIsPartnerTyping(false);
+    }
+  };
+
+  useEffect(() => {
+    // Initial message from partner
+    getPartnerResponse([]);
 
     // Simulate partner leaving
     const leaveTimeout = setTimeout(() => {
       setPartnerLeft(true);
     }, 60000); // Partner leaves after 1 minute
-    timeouts.push(leaveTimeout);
-
-    return () => timeouts.forEach(clearTimeout);
+    return () => clearTimeout(leaveTimeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (inputValue.trim()) {
-      setMessages(prev => [...prev, { id: Date.now(), text: inputValue, sender: 'user', timestamp: new Date() }]);
+      const newUserMessage: Message = {
+        id: Date.now(),
+        text: inputValue,
+        sender: 'user',
+        timestamp: new Date(),
+      };
+      const newMessages = [...messages, newUserMessage];
+      setMessages(newMessages);
       setInputValue('');
+      await getPartnerResponse(newMessages);
     }
   };
 
@@ -233,24 +276,41 @@ export default function ChatClient() {
                     }}
                     placeholder={partnerLeft ? 'Your partner has left the chat.' : 'Type your message...'}
                     className="pr-20"
-                    disabled={partnerLeft}
+                    disabled={partnerLeft || isPartnerTyping}
                   />
-                  <Button type="submit" size="icon" className="absolute right-3 top-1/2 -translate-y-1/2" onClick={handleSendMessage} disabled={!inputValue.trim() || partnerLeft}>
+                  <Button type="submit" size="icon" className="absolute right-3 top-1/2 -translate-y-1/2" onClick={handleSendMessage} disabled={!inputValue.trim() || partnerLeft || isPartnerTyping}>
                     <Send className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
             </div>
             <div className="hidden md:flex flex-col border-l">
-              <Card className="m-6 flex-1 flex flex-col items-center justify-center text-center bg-card/50 border-dashed">
-                <CardHeader>
-                  <CardTitle>Video Chat</CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-col items-center justify-center gap-4 text-muted-foreground">
-                  <VideoOff className="h-16 w-16" />
-                  <p>Video streaming is not available in this demo.</p>
-                </CardContent>
-              </Card>
+              <div className="p-6 space-y-4">
+                <Card className="flex-1 flex flex-col items-center justify-center text-center bg-card/50 border-dashed relative overflow-hidden aspect-video">
+                  <CardHeader>
+                    <CardTitle>Partner's Video</CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex flex-col items-center justify-center gap-4 text-muted-foreground">
+                    <VideoOff className="h-16 w-16" />
+                    <p>Your partner's video is off</p>
+                  </CardContent>
+                </Card>
+                <div className="relative aspect-video">
+                  <video ref={videoRef} className="w-full aspect-video rounded-md bg-muted" autoPlay muted />
+                  {hasCameraPermission === false && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 text-white p-4 rounded-md">
+                      <VideoOff className="h-10 w-10 mb-2" />
+                      <p className="text-center font-semibold">Camera Access Required</p>
+                      <p className="text-center text-sm">Please allow camera access to use video chat.</p>
+                    </div>
+                  )}
+                  {hasCameraPermission === undefined && (
+                     <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 text-white p-4 rounded-md">
+                      <Loader2 className="h-10 w-10 animate-spin" />
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </main>
