@@ -18,7 +18,7 @@ import { Logo } from '@/components/logo';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import Link from 'next/link';
-import Image from 'next/image';
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 
 type Message = {
   id: number;
@@ -179,26 +179,55 @@ export default function ChatClient() {
   };
 
   return (
-    <div className="flex h-screen w-full bg-background font-body">
-      <div className="flex flex-1 flex-col">
-        <header className="flex items-center justify-between border-b p-4 shrink-0">
-          <Link href="/">
-            <Logo />
-          </Link>
-          <div className="flex items-center gap-4">
-            <div className="text-right hidden sm:block">
-              <p className="font-semibold">Chatting with a {learningLang} speaker</p>
-              <p className="text-sm text-muted-foreground">You are learning {learningLang}</p>
-            </div>
-            <Button variant="outline" onClick={handleEndChat}>
-              <LogOut className="mr-2 h-4 w-4" /> End Chat
-            </Button>
+    <div className="flex h-screen w-full flex-col bg-background font-body">
+      <header className="flex shrink-0 items-center justify-between border-b p-4">
+        <Link href="/">
+          <Logo />
+        </Link>
+        <div className="flex items-center gap-4">
+          <div className="hidden text-right sm:block">
+            <p className="font-semibold">Chatting with a {learningLang} speaker</p>
+            <p className="text-sm text-muted-foreground">You are learning {learningLang}</p>
           </div>
-        </header>
+          <Button variant="outline" onClick={handleEndChat}>
+            <LogOut className="mr-2 h-4 w-4" /> End Chat
+          </Button>
+        </div>
+      </header>
 
-        <main className="flex-1 overflow-hidden">
-          <div className="grid h-full grid-cols-1 md:grid-cols-3">
-            <div className="md:col-span-2 flex flex-col h-full">
+      <main className="flex-1 overflow-hidden">
+        <ResizablePanelGroup direction="horizontal" className="h-full w-full">
+          <ResizablePanel defaultSize={30} minSize={20}>
+            <div className="flex h-full flex-col items-center justify-center space-y-4 p-4">
+              <Card className="relative flex aspect-video w-full flex-col items-center justify-center overflow-hidden border-dashed bg-card/50 text-center">
+                <CardHeader>
+                  <CardTitle>Partner's Video</CardTitle>
+                </CardHeader>
+                <CardContent className="flex flex-col items-center justify-center gap-4 text-muted-foreground">
+                  <VideoOff className="h-16 w-16" />
+                  <p>Your partner's video is off</p>
+                </CardContent>
+              </Card>
+              <div className="relative aspect-video w-full">
+                <video ref={videoRef} className="aspect-video w-full rounded-md bg-muted" autoPlay muted />
+                {hasCameraPermission === false && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center rounded-md bg-black/50 p-4 text-white">
+                    <VideoOff className="mb-2 h-10 w-10" />
+                    <p className="text-center font-semibold">Camera Access Required</p>
+                    <p className="text-center text-sm">Please allow camera access to use video chat.</p>
+                  </div>
+                )}
+                {hasCameraPermission === undefined && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center rounded-md bg-black/50 p-4 text-white">
+                    <Loader2 className="h-10 w-10 animate-spin" />
+                  </div>
+                )}
+              </div>
+            </div>
+          </ResizablePanel>
+          <ResizableHandle withHandle />
+          <ResizablePanel defaultSize={70}>
+            <div className="flex h-full flex-col">
               <ScrollArea className="flex-1 p-6" ref={scrollAreaRef}>
                 <div className="space-y-6">
                   {messages.map(msg => (
@@ -210,13 +239,13 @@ export default function ChatClient() {
                         </Avatar>
                       )}
                       <div
-                        className={cn('max-w-xs lg:max-w-md rounded-lg p-3 shadow-sm', {
-                          'bg-card rounded-bl-none': msg.sender === 'partner',
-                          'bg-primary text-primary-foreground rounded-br-none': msg.sender === 'user',
+                        className={cn('max-w-xs rounded-lg p-3 shadow-sm lg:max-w-md', {
+                          'rounded-bl-none bg-card': msg.sender === 'partner',
+                          'rounded-br-none bg-primary text-primary-foreground': msg.sender === 'user',
                         })}
                       >
                         <p className="text-sm">{msg.text}</p>
-                        <p className="mt-1 text-xs opacity-70 text-right">{format(msg.timestamp, 'p')}</p>
+                        <p className="mt-1 text-right text-xs opacity-70">{format(msg.timestamp, 'p')}</p>
                         {msg.sender === 'partner' && (
                           <div className="mt-2 border-t border-border/20 pt-2">
                             {translations[msg.id]?.loading ? (
@@ -245,17 +274,17 @@ export default function ChatClient() {
                         <AvatarImage src={partnerAvatar?.imageUrl} alt="Partner" />
                         <AvatarFallback>P</AvatarFallback>
                       </Avatar>
-                      <div className="max-w-xs lg:max-w-md rounded-lg p-3 bg-card rounded-bl-none shadow-sm">
+                      <div className="max-w-xs rounded-lg bg-card p-3 shadow-sm lg:max-w-md rounded-bl-none">
                         <div className="flex items-center gap-1.5">
-                          <span className="h-2 w-2 rounded-full bg-muted-foreground animate-pulse [animation-delay:0s]"></span>
-                          <span className="h-2 w-2 rounded-full bg-muted-foreground animate-pulse [animation-delay:0.2s]"></span>
-                          <span className="h-2 w-2 rounded-full bg-muted-foreground animate-pulse [animation-delay:0.4s]"></span>
+                          <span className="h-2 w-2 animate-pulse rounded-full bg-muted-foreground [animation-delay:0s]"></span>
+                          <span className="h-2 w-2 animate-pulse rounded-full bg-muted-foreground [animation-delay:0.2s]"></span>
+                          <span className="h-2 w-2 animate-pulse rounded-full bg-muted-foreground [animation-delay:0.4s]"></span>
                         </div>
                       </div>
                     </div>
                   )}
                   {partnerLeft && (
-                    <Alert className="bg-accent/20 border-accent/50 text-accent-foreground">
+                    <Alert className="border-accent/50 bg-accent/20 text-accent-foreground">
                       <AlertTriangle className="h-4 w-4 !text-accent-foreground" />
                       <AlertTitle>Partner has left</AlertTitle>
                       <AlertDescription>Your practice partner has disconnected. You can find a new partner from the matchmaking page.</AlertDescription>
@@ -263,7 +292,7 @@ export default function ChatClient() {
                   )}
                 </div>
               </ScrollArea>
-              <div className="border-t p-4 bg-card/50">
+              <div className="border-t bg-card/50 p-4">
                 <div className="relative">
                   <Textarea
                     value={inputValue}
@@ -284,37 +313,9 @@ export default function ChatClient() {
                 </div>
               </div>
             </div>
-            <div className="hidden md:flex flex-col border-l">
-              <div className="p-6 space-y-4">
-                <Card className="flex-1 flex flex-col items-center justify-center text-center bg-card/50 border-dashed relative overflow-hidden aspect-video">
-                  <CardHeader>
-                    <CardTitle>Partner's Video</CardTitle>
-                  </CardHeader>
-                  <CardContent className="flex flex-col items-center justify-center gap-4 text-muted-foreground">
-                    <VideoOff className="h-16 w-16" />
-                    <p>Your partner's video is off</p>
-                  </CardContent>
-                </Card>
-                <div className="relative aspect-video">
-                  <video ref={videoRef} className="w-full aspect-video rounded-md bg-muted" autoPlay muted />
-                  {hasCameraPermission === false && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 text-white p-4 rounded-md">
-                      <VideoOff className="h-10 w-10 mb-2" />
-                      <p className="text-center font-semibold">Camera Access Required</p>
-                      <p className="text-center text-sm">Please allow camera access to use video chat.</p>
-                    </div>
-                  )}
-                  {hasCameraPermission === undefined && (
-                     <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 text-white p-4 rounded-md">
-                      <Loader2 className="h-10 w-10 animate-spin" />
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </main>
-      </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </main>
     </div>
   );
 }
