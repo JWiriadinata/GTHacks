@@ -218,8 +218,8 @@ export default function ChatClient() {
                   <p>Your partner's video is off</p>
                 </CardContent>
               </Card>
-              <div className="relative flex-1 w-full">
-                <video ref={videoRef} className="h-full w-full object-cover rounded-md bg-muted" autoPlay muted />
+              <div className="relative flex-1 w-full overflow-hidden rounded-md bg-muted">
+                <video ref={videoRef} className="h-full w-full object-cover" autoPlay muted playsInline />
                 {hasCameraPermission === false && (
                   <div className="absolute inset-0 flex flex-col items-center justify-center rounded-md bg-black/50 p-4 text-white">
                     <VideoOff className="mb-2 h-10 w-10" />
