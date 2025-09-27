@@ -2,6 +2,8 @@ import os
 from pathlib import Path
 
 # Base directory
+AUTH_USER_MODEL = "users.User"
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'your-secret-key'  # Replace with a secure key for production
@@ -34,7 +36,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'project_name.urls'
+ROOT_URLCONF = 'connexus.urls'
 
 TEMPLATES = [
     {
@@ -52,8 +54,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'project_name.wsgi.application'
-ASGI_APPLICATION = 'project_name.asgi.application'
+WSGI_APPLICATION = 'connexus.wsgi.application'
+ASGI_APPLICATION = 'connexus.asgi.application'
 
 # Database
 DATABASES = {
