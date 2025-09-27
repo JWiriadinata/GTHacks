@@ -67,55 +67,57 @@ export default function ChatClient() {
     }
   }, [messages, isPartnerTyping]);
 
-  useEffect(() => {
-    const getCameraPermission = async () => {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        console.error('Camera API not supported in this browser.');
-        setHasCameraPermission(false);
-        toast({
-          variant: 'destructive',
-          title: 'Camera Not Supported',
-          description: 'Your browser does not support camera access.',
-        });
-        return;
+  const getCameraPermission = async () => {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      console.error('Camera API not supported in this browser.');
+      setHasCameraPermission(false);
+      toast({
+        variant: 'destructive',
+        title: 'Camera Not Supported',
+        description: 'Your browser does not support camera access.',
+      });
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      streamRef.current = stream;
+      setHasCameraPermission(true);
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
       }
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        streamRef.current = stream;
-        setHasCameraPermission(true);
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-      } catch (error) {
-        console.error('Error accessing camera:', error);
-        setHasCameraPermission(false);
-      }
-    };
+    } catch (error) {
+      console.error('Error accessing camera:', error);
+      setHasCameraPermission(false);
+    }
+  };
 
+  useEffect(() => {
     if (isCameraOn) {
       getCameraPermission();
+    } else {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
+      }
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+      }
     }
 
+    // This cleanup function runs when the component unmounts or `isCameraOn` changes.
     return () => {
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
       }
     };
-  }, [toast, isCameraOn]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isCameraOn]);
+
 
   const handleToggleCamera = () => {
-    setIsCameraOn(prevIsCameraOn => {
-      if (prevIsCameraOn) {
-        if (streamRef.current) {
-          streamRef.current.getTracks().forEach(track => track.stop());
-        }
-        if (videoRef.current) {
-          videoRef.current.srcObject = null;
-        }
-      }
-      return !prevIsCameraOn;
-    });
+    setIsCameraOn(prevIsCameraOn => !prevIsCameraOn);
   };
+
 
   const getPartnerResponse = async (currentMessages: Message[]) => {
     setIsPartnerTyping(true);
@@ -151,8 +153,10 @@ export default function ChatClient() {
 
   useEffect(() => {
     // Initial message from partner
-    getPartnerResponse([]);
-
+    if (messages.length === 0) {
+      getPartnerResponse([]);
+    }
+    
     // Simulate partner leaving
     const leaveTimeout = setTimeout(() => {
       setPartnerLeft(true);
@@ -228,7 +232,7 @@ export default function ChatClient() {
         <ResizablePanelGroup direction="horizontal" className="h-full w-full">
           <ResizablePanel defaultSize={30} minSize={20}>
             <div className="flex h-full flex-col">
-              <div className="relative flex-1 w-full overflow-hidden bg-card/50">
+              <div className="relative flex-1 w-full overflow-hidden">
                  <Card className="flex h-full w-full flex-col items-center justify-center overflow-hidden border-dashed bg-card/50 text-center">
                   <CardHeader>
                     <CardTitle>Partner's Video</CardTitle>
@@ -239,9 +243,9 @@ export default function ChatClient() {
                   </CardContent>
                 </Card>
               </div>
-              <div className="relative flex-1 w-full overflow-hidden bg-muted">
-                <video ref={videoRef} className="h-full w-full object-cover" autoPlay muted playsInline />
-                <div className="absolute bottom-2 left-2 right-2 flex justify-center">
+              <div className="relative flex-1 w-full overflow-hidden bg-muted p-2">
+                <video ref={videoRef} className="h-full w-full object-cover rounded-md" autoPlay muted playsInline />
+                <div className="absolute bottom-4 left-2 right-2 flex justify-center">
                   <Button onClick={handleToggleCamera} variant="outline" size="icon">
                     {isCameraOn ? <Video className="h-5 w-5" /> : <VideoOff className="h-5 w-5" />}
                   </Button>
