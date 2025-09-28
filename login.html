@@ -3,23 +3,44 @@
     <head>
         <link rel="stylesheet" href="styles.css">
         <title>Log in</title>
+        <link rel="icon" type="image/x-icon" href="favicon.ico">
     </head>
     <body>
-          <div class="header">
-          <img src="connexusLogoBGR.png" alt="logo" width="50" height="90">
-          <ul class="horizontal-list">
-            <li><h1>ConnexUs</h1></li>
-            <li><a href="home.html">Home</a></li>
-            <li><a href="login.html">Log in</a></li>
-            <li><a href="signup.html">Sign Up</a></li>
-            <li><a href="ai">AI</a></li>
-            <li><a href="matchmaking.html">Matchmaking</a></li>    
-            <li><a href="friends">Friends</a></li>
-            <li><a href="preferences">Preferences</a></li>
-         </ul>
+          <nav class="navbar">
+        <div class="navbar__container">
+            <a href="/" id="navbar__logo">
+  <img src="connexusLogoBGR.png" alt="ConneXus Logo" class="logo-img">
+ConnexUs</a>
+            <div class="navbar__toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+            <ul class="navbar__menu">
+                <li class="navbar__item"><a href="/home.html" class="navbar__links">
+                    Home
+                </a></li>
+                <li class="navbar__item"><a href="/login.html" class="navbar__links">
+                    Log In
+                </a></li>
+                <li class="navbar__item"><a href="/" class="navbar__links">
+                    AI
+                </a></li>
+                <li class="navbar__item"><a href="/matchmaking.html" class="navbar__links">
+                    Chat
+                </a></li>
+                <li class="navbar__item"><a href="/preferences.html" class="navbar__links">
+                    Preferences
+                </a></li>
+                <li class="navbar__btn"><a href="/" class="button">
+                    Sign Up
+                </a></li>
+            </ul>
 
         </div>
-        <div class="Log In">
+    </nav>
+
+        <div class="login-container">
             <h1>Log In</h1>
             <p>Enter Your Display Name</p>
             <input type="text" placeholder="display name" name="displayName" required>
@@ -28,5 +49,6 @@
 
             <button type="submit">Login</button>
         </div>
+        <script src="app.js"></script>
     </body>
 </html>

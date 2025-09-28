@@ -1,12 +1,17 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <link rel="stylesheet" href="styles.css">
-        <title>Chat</title>
-        <link rel="icon" type="image/x-icon" href="favicon.ico">
-    </head>
-    <body>
-       <nav class="navbar">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+     <link rel="stylesheet" href="styles.css">
+     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+     <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+    <title>ConnexUs Website</title>
+</head>
+<body>
+    <nav class="navbar">
         <div class="navbar__container">
             <a href="/" id="navbar__logo">
   <img src="connexusLogoBGR.png" alt="ConneXus Logo" class="logo-img">
@@ -32,17 +37,29 @@ ConnexUs</a>
                 <li class="navbar__item"><a href="/preferences.html" class="navbar__links">
                     Preferences
                 </a></li>
-                <li class="navbar__btn"><a href="/" class="button">
+                <li class="navbar__btn"><a href="signup.html" class="button">
                     Sign Up
                 </a></li>
             </ul>
 
         </div>
     </nav>
-        <div class="Language Selection">
-            <h1>Chat</h1>
-            <video id="localVideo" autoplay playsinline controls="false"></video>
+
+    <div class="main">
+        <div class="main__container">
+            <div class="main__content">
+                <h1>Connect with anyone</h1>
+                <h2>Anywhere</h2>
+                <p>How learning really happens</p>
+                <button class="main__btn">
+                    <a href="/">Get Started</a>
+                </button>
+            </div>
+            <div class="main_img--container">
+                <img src="mainpic.png" alt="pic" id="main__img">
+            </div>
         </div>
-        <script src="app.js"></script>
-    </body>
+    </div>
+    <script src="app.js"></script>
+</body>
 </html>
