@@ -11,6 +11,8 @@ LANGUAGE_CHOICES = [
 ]
 
 class User(AbstractUser):
+    username = models.CharField(unique=True)
+    password = models.CharField()
     native_language = models.CharField(max_length=2, choices=LANGUAGE_CHOICES)
     target_language = models.CharField(max_length=2, choices=LANGUAGE_CHOICES)
     timezone = models.CharField(max_length=50, choices=[(tz, tz) for tz in pytz.all_timezones])

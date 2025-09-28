@@ -9,6 +9,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'your-secret-key'  # Replace with a secure key for production
 DEBUG = True
 
+LOGIN_REDIRECT_URL = '/home'
+
 ALLOWED_HOSTS = []
 
 # Installed apps
