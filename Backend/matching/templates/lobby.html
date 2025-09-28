@@ -28,7 +28,7 @@
     form.addEventListener('submit', (e) => {
         e.preventDefault()
         let inviteLink = e.target.invite_link.value
-        window.location = `index.html?room=${inviteLink}`
+        window.location = `room/${inviteLink}`
     })
 </script>
 
