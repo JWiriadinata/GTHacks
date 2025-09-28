@@ -1,57 +1,116 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <link rel="stylesheet" href="styles.css">
-        <link rel="icon" type="image/x-icon" href="favicon.ico">
-        <title>Home</title>
-    </head>
-    <body>
-<nav class="navbar">
-        <div class="navbar__container">
-            <a href="/" id="navbar__logo">
-  <img src="connexusLogoBGR.png" alt="ConneXus Logo" class="logo-img">
-ConnexUs</a>
-            <div class="navbar__toggle" id="mobile-menu">
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
-            </div>
-            <ul class="navbar__menu">
-                <li class="navbar__item"><a href="/home.html" class="navbar__links">
-                    Home
-                </a></li>
-                <li class="navbar__item"><a href="/login.html" class="navbar__links">
-                    Log In
-                </a></li>
-                <li class="navbar__item"><a href="/" class="navbar__links">
-                    AI
-                </a></li>
-                <li class="navbar__item"><a href="/matchmaking.html" class="navbar__links">
-                    Chat
-                </a></li>
-                <li class="navbar__item"><a href="/preferences.html" class="navbar__links">
-                    Preferences
-                </a></li>
-                <li class="navbar__btn"><a href="/" class="button">
-                    Sign Up
-                </a></li>
-            </ul>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <title>ConnexUs Home</title>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar"> 
 
+        <div class="navbar__container"> 
+
+            <a href="/" id="navbar__logo"> 
+
+  <img src="connexusLogoBGR.png" alt="ConneXus Logo" class="logo-img"> 
+
+ConnexUs</a> 
+
+            <div class="navbar__toggle" id="mobile-menu"> 
+
+                <span class="bar"></span> 
+
+                <span class="bar"></span> 
+
+                <span class="bar"></span> 
+
+            </div> 
+
+            <ul class="navbar__menu"> 
+
+                <li class="navbar__item"><a href="/home.html" class="navbar__links"> 
+
+                    Home 
+
+                </a></li> 
+
+                <li class="navbar__item"><a href="/login.html" class="navbar__links"> 
+
+                    Log In 
+
+                </a></li> 
+
+                <li class="navbar__item"><a href="/" class="navbar__links"> 
+
+                    AI 
+
+                </a></li> 
+
+                <li class="navbar__item"><a href="/matchmaking.html" class="navbar__links"> 
+
+                    Chat 
+
+                </a></li> 
+
+                <li class="navbar__btn"><a href="/" class="button"> 
+
+                    Sign Up 
+
+                </a></li> 
+
+            </ul> 
+
+ 
+
+        </div> 
+
+    </nav> 
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero__content">
+            <h1>Send Your Words Flying</h1>
+            <h2>Connect. Chat. Learn.</h2>
+            <p>Practice languages and make friends worldwide—your messaging pigeon will carry your words anywhere!</p>
+            <a href="/signup.html" class="hero__btn">Get Started</a>
         </div>
-    </nav>
-        
-        <div class="About">
-            <h1>Who we are</h1>
-            <p>
-                The main mission of ConnexUs is to help people connect, all over the world, while cherishing language pride. ConnexUs strives to eliminate language barriers by providing a platform where users can connect with others who
-                speak a language that they are trying to learn.
-            </p>
-            <h1>How to</h1>
-            <p>
-                In order to use ConnexUs, proceed to the chat page. There, you will enter your preferences including what language you are trying to learn. From there,
-                you wil be connected with someone. After that, start chatting!
-            </p>
+        <div class="hero__img">
+            <img src="pigeondeliver.png" alt="Messaging Pigeon Illustration">
         </div>
-        <script src="app.js"></script>
-    </body>
+    </section>
+
+    <!-- About / Mission -->
+    <section class="about">
+        <h1>Our Mission</h1>
+        <p>
+            ConnexUs helps people connect globally while celebrating language diversity. Break barriers, 
+            practice real conversations, and grow your skills—all through a fun and interactive platform.
+        </p>
+    </section>
+
+    <!-- Minimal Features -->
+    <section class="features">
+        <div class="features__container">
+            <div class="features__card">
+                <h2>Global Connections</h2>
+                <p>Meet people worldwide who share your language interests.</p>
+            </div>
+            <div class="features__card">
+                <h2>Interactive Learning</h2>
+                <p>Practice real conversations in a safe environment.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="cta">
+        <h2>Ready to let your words fly?</h2>
+        <a href="/signup.html" class="cta__btn">Sign Up Now</a>
+    </section>
+
+    <script src="app.js"></script>
+</body>
 </html>
