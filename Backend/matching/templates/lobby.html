@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lobby</title>
-    <link rel="stylesheet" type="text/css" media="screen" href="main.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="/static/main.css">
 </head>
 <body>
     <main id="lobby-container">
         <div id="form-container">
             <div id="form__container__header">
-                <p>ð Create or Join Room</p>
+                <p>ð Create or Join Room</p>
             </div>
 
             <div id="form__content__wrapper">
@@ -28,7 +28,7 @@
     form.addEventListener('submit', (e) => {
         e.preventDefault()
         let inviteLink = e.target.invite_link.value
-        window.location = `room/${inviteLink}`
+        window.location = `/room/${inviteLink}/`
     })
 </script>
 
