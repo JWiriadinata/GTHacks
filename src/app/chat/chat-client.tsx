@@ -67,49 +67,61 @@ export default function ChatClient() {
     }
   }, [messages, isPartnerTyping]);
 
-  useEffect(() => {
-    const getCameraPermission = async () => {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        console.error('Camera API not supported in this browser.');
-        setHasCameraPermission(false);
-        toast({
-          variant: 'destructive',
-          title: 'Camera Not Supported',
-          description: 'Your browser does not support camera access.',
-        });
-        return;
+  const getCameraPermission = async () => {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      console.error('Camera API not supported in this browser.');
+      setHasCameraPermission(false);
+      toast({
+        variant: 'destructive',
+        title: 'Camera Not Supported',
+        description: 'Your browser does not support camera access.',
+      });
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      streamRef.current = stream;
+      setHasCameraPermission(true);
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
       }
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        streamRef.current = stream;
-        setHasCameraPermission(true);
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-      } catch (error) {
-        console.error('Error accessing camera:', error);
-        setHasCameraPermission(false);
-      }
-    };
+    } catch (error) {
+      console.error('Error accessing camera:', error);
+      setHasCameraPermission(false);
+    }
+  };
 
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+  }
+
+  useEffect(() => {
     if (isCameraOn) {
       getCameraPermission();
     } else {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-        streamRef.current = null;
-      }
-      if (videoRef.current) {
-        videoRef.current.srcObject = null;
-      }
+      stopCamera();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isCameraOn]);
 
+
+  useEffect(() => {
+    // Initial camera setup
+    getCameraPermission();
+
+    // Cleanup on unmount
     return () => {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-      }
+      stopCamera();
     };
-  }, [isCameraOn, toast]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
 
   const handleToggleCamera = () => {
     setIsCameraOn(prevIsCameraOn => !prevIsCameraOn);
@@ -135,7 +147,15 @@ export default function ChatClient() {
         sender: 'partner',
         timestamp: new Date(),
       };
+      
+      // Prevent duplicate initial message
+      if (messages.some(m => m.text === result.response && m.sender === 'partner')) {
+        setIsPartnerTyping(false);
+        return;
+      }
+
       setMessages(prev => [...prev, newPartnerMessage]);
+
     } catch (e) {
       console.error(e);
       toast({
@@ -228,8 +248,8 @@ export default function ChatClient() {
       <main className="flex-1 overflow-hidden">
         <ResizablePanelGroup direction="horizontal" className="h-full w-full">
           <ResizablePanel defaultSize={30} minSize={20}>
-            <div className="flex h-full flex-col">
-              <div className="relative flex-1 w-full overflow-hidden">
+            <div className="flex h-full flex-col p-2 gap-2">
+              <div className="relative flex-1 w-full overflow-hidden rounded-md">
                  <Card className="flex h-full w-full flex-col items-center justify-center overflow-hidden border-dashed bg-card/50 text-center">
                   <CardHeader>
                     <CardTitle>Partner's Video</CardTitle>
@@ -240,32 +260,32 @@ export default function ChatClient() {
                   </CardContent>
                 </Card>
               </div>
-              <div className="relative flex-1 w-full overflow-hidden bg-muted p-2">
-                <video ref={videoRef} className="h-full w-full object-cover rounded-md" autoPlay muted playsInline />
-                <div className="absolute bottom-4 left-2 right-2 flex justify-center">
-                  <Button onClick={handleToggleCamera} variant="outline" size="icon">
-                    {isCameraOn ? <Video className="h-5 w-5" /> : <VideoOff className="h-5 w-5" />}
-                  </Button>
-                </div>
+              <div className="relative flex-1 w-full overflow-hidden rounded-md bg-muted">
+                <video ref={videoRef} className="h-full w-full object-cover" autoPlay muted playsInline />
                 {!isCameraOn && (
-                   <div className="absolute inset-0 flex flex-col items-center justify-center rounded-md bg-black/80 p-4 text-white">
+                   <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 p-4 text-white">
                     <VideoOff className="mb-2 h-10 w-10" />
                     <p className="text-center font-semibold">Your camera is off</p>
                   </div>
                 )}
                  {hasCameraPermission === false && isCameraOn && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center rounded-md bg-black/80 p-4 text-white">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 p-4 text-white">
                     <VideoOff className="mb-2 h-10 w-10" />
                     <p className="text-center font-semibold">Camera Access Required</p>
                     <p className="text-center text-sm">Please allow camera access to use video chat.</p>
                   </div>
                 )}
                 {hasCameraPermission === undefined && isCameraOn &&(
-                  <div className="absolute inset-0 flex flex-col items-center justify-center rounded-md bg-black/50 p-4 text-white">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 p-4 text-white">
                     <Loader2 className="h-10 w-10 animate-spin" />
                   </div>
                 )}
               </div>
+               <div className="flex justify-center">
+                  <Button onClick={handleToggleCamera} variant="outline" size="icon">
+                    {isCameraOn ? <Video className="h-5 w-5" /> : <VideoOff className="h-5 w-5" />}
+                  </Button>
+                </div>
             </div>
           </ResizablePanel>
           <ResizableHandle withHandle />
