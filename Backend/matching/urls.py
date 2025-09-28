@@ -1,6 +1,7 @@
 from django.urls import path
-from .views import MatchUserView
+from . import views
 
 urlpatterns = [
-    path('find/', MatchUserView.as_view(), name='find-match'),
+    path('', views.lobby, name="lobby"),
+    path('room/<str:pk>/', views.room, name='room')
 ]
