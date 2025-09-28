@@ -10,8 +10,13 @@ SECRET_KEY = 'your-secret-key'  # Replace with a secure key for production
 DEBUG = True
 
 LOGIN_REDIRECT_URL = '/home'
+STATIC_ROOT = "matching/static/"
 
 ALLOWED_HOSTS = []
+
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
 
 # Installed apps
 INSTALLED_APPS = [
