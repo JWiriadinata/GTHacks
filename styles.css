@@ -667,7 +667,7 @@
     font-family: 'Trebuchet MS', sans-serif;
 }
 
-/* Navbar */
+/* Navbar 
 .navbar {
     background: #37392E;
     height: 80px;
@@ -722,6 +722,7 @@
 .navbar__btn .button:hover {
     background: #EDF060;
 }
+    */
 
 /* Hero Section */
 .hero {
